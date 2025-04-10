@@ -17,7 +17,9 @@ class BrandListSerializer(serializers.ModelSerializer):
 
 
 class ProductListSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Product
-        fields = '__all__'
+        fields = ('id', 'title', 'category', 'price', 'discount_price', 'main_cover', 'get_status_display')
+
 
