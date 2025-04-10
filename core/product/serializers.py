@@ -18,17 +18,20 @@ class BrandListSerializer(serializers.ModelSerializer):
         model = Brand
         fields = '__all__'
 
+    @staticmethod
+    def get_status(self, obj):
+        return obj.get_status_display()
+
 
 class ProductListSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
 
-    def get_status(self, obj):
-        return obj.get_status_display()
 
     class Meta:
         model = Product
         fields = '__all__'
 
+    @staticmethod
     def get_status(self, obj):
         return obj.get_status_display()
 
