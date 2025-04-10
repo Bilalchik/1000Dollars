@@ -17,13 +17,17 @@ class BrandListSerializer(serializers.ModelSerializer):
 
 
 class ProductListSerializer(serializers.ModelSerializer):
+<<<<<<< HEAD
     brand = serializers.SlugRelatedField(read_only=True, slug_field='title')
     category = serializers.SlugRelatedField(read_only=True, slug_field='title')
     status = serializers.SerializerMethodField()
+=======
+>>>>>>> 871fa30793a831446398473267ee95216ebe327a
 
     class Meta:
         model = Product
-        fields = '__all__'
+        fields = ('id', 'title', 'category', 'price', 'discount_price', 'main_cover', 'get_status_display')
+
 
     def get_status(self, obj):
         return obj.get_status_display()

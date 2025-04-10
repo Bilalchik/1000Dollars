@@ -1,11 +1,13 @@
 from rest_framework.views import APIView, Response
 from django.db.models import F, Q
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Product, Banner, Brand
 from .serializers import BannerListSerializer, BrandListSerializer, ProductListSerializer
 
 
 class IndexView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         banners = Banner.objects.filter(is_active=True)
@@ -19,8 +21,6 @@ class IndexView(APIView):
         brands_serializer = BrandListSerializer(brands, many=True)
         best_sellers_products_serializer = ProductListSerializer(best_sellers_products, many=True)
         promo_products_serializer = ProductListSerializer(promo_products, many=True)
-
-
 
         data = {
             "banners": banners_serializer.data,
