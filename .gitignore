@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Django
 *.log
 *.pot
@@ -49,3 +50,7 @@ logs/
 
 # Зависимости
 node_modules/
+=======
+/.idea
+/.venv
+>>>>>>> 871fa30793a831446398473267ee95216ebe327a
