@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
 from .choices import ProductStatusEnum, BannerPositionEnum
 
@@ -51,6 +52,16 @@ class Product(models.Model):
     status = models.CharField(choices=ProductStatusEnum.choices, default=ProductStatusEnum.ON_SALE, max_length=13)
     created_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
+
+    def clean(self):
+        if self.discount_price > self.price:
+            raise ValidationError({
+                'discount_price': 'Скидочная цена не может быть больше основной стоимости.'
+            })
+
+    def save(self, *args, **kwargs):
+        self.full_clean()  # Вызовет clean() перед сохранением
+        super().save(*args, **kwargs)
 
 
     def __str__(self):
