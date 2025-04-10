@@ -1,0 +1,51 @@
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+
+# Виртуальное окружение
+.venv/
+venv/
+ENV/
+
+# Python кэш
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Секреты, ключи, конфиги
+.env
+.env.local
+*.env
+settings_local.py
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*~
+.project
+.pydevproject
+
+# Если используете статические файлы и собираете их
+/static/
+/staticfiles/
+/media/
+/mediafiles/
+
+# Файлы миграций, можно включать или исключать в зависимости от вашей стратегии
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# Логи
+logs/
+*.log
+
+# Зависимости
+node_modules/
