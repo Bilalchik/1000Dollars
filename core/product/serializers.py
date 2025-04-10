@@ -1,7 +1,13 @@
 from django.contrib.admin.utils import model_ngettext
+from django.template.defaultfilters import title
 from rest_framework import serializers
-from .models import Product, Banner, Brand
+from .models import Product, Banner, Brand, Category
 
+
+class CategoryListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('id','title')
 
 class BannerListSerializer(serializers.ModelSerializer):
 
@@ -17,7 +23,12 @@ class BrandListSerializer(serializers.ModelSerializer):
 
 
 class ProductListSerializer(serializers.ModelSerializer):
+    category = CategoryListSerializer()
+    status = serializers.SerializerMethodField()
     class Meta:
         model = Product
         fields = '__all__'
+
+    def get_status(self, obj):
+        return obj.get_status_display()
 
