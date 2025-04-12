@@ -1,13 +1,20 @@
 from rest_framework.views import APIView, Response
 from django.db.models import F, Q
 from rest_framework.permissions import IsAuthenticated
+from django.core.mail import send_mail
+from django.conf import settings
 
 from .models import Product, Banner, Brand
 from .serializers import BannerListSerializer, BrandListSerializer, ProductListSerializer
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+
+import certifi
+print(certifi.where())
 
 
 class IndexView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         banners = Banner.objects.filter(is_active=True)

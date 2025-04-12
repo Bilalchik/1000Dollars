@@ -152,3 +152,12 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
+
+EMAIL_BACKEND = 'quick_email_backend.QuickEmailBackend'
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = "azbk2004@gmail.com"
+EMAIL_HOST_PASSWORD = "mfys atwg oxjr romb"
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
