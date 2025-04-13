@@ -1,5 +1,9 @@
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.db import models
+from django.utils import timezone
+import random
+import string
+
 
 
 class MyUserManager(BaseUserManager):
@@ -36,11 +40,11 @@ class MyUserManager(BaseUserManager):
 
 
 class MyUser(AbstractBaseUser):
-    username = models.CharField(max_length=223)
+    username = models.CharField(max_length=223, unique=True)
     email = models.EmailField(unique=True)
-    phone_number = models.CharField(max_length=14, blank=True, null=True)
+    phone_number = models.CharField(max_length=14)
     address = models.CharField(max_length=220, blank=True, null=True)
-    cover = models.ImageField(upload_to='media/user_cover', blank=True, null=True)
+    cover = models.ImageField(upload_to='user_cover', blank=True, null=True)
     created_date = models.DateTimeField(
         auto_now_add=True
     )
@@ -75,3 +79,27 @@ class MyUser(AbstractBaseUser):
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+
+class PasswordResetCode(models.Model):
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+    code = models.CharField(max_length=6, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        if not self.code:
+            self.code = ''.join(random.choices(string.digits, k=6))
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timezone.timedelta(minutes=15)
+        super().save(*args, **kwargs)
+
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    def __str__(self):
+        return f"Reset code for {self.user.email}"
+
+    class Meta:
+        verbose_name = 'Код сброса пароля'
+        verbose_name_plural = 'Коды сброса пароля'

@@ -14,8 +14,8 @@ class IndexView(APIView):
         brands = Brand.objects.filter(is_active=True)
 
         # TODO: Фильтрация пол самым продаваемым
-        best_sellers_products = Product.objects.filter(is_active=True)
-        promo_products = Product.objects.filter(discount_price__lt=F('price'), discount_price__gt=0)
+        best_sellers_products = Product.objects.filter(is_active=True).select_related('category')
+        promo_products = Product.objects.filter(discount_percent__gt=0, is_active=True).select_related('category')
 
         banners_serializer = BannerListSerializer(banners, many=True)
         brands_serializer = BrandListSerializer(brands, many=True)
