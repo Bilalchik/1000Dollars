@@ -1,9 +1,7 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from decimal import Decimal
-
 from django.db.models import PositiveIntegerField
-
 from .choices import ProductStatusEnum, BannerPositionEnum
 
 
@@ -35,10 +33,7 @@ class Product(TimeStampedModel):
     )
     name = models.CharField('Название', max_length=250)
     description = models.TextField('Описание')
-    main_cover = models.ImageField(
-        'Основное фото',
-        upload_to='products/main_cover'
-    )
+    main_cover = models.ImageField('Основное фото', upload_to='products/main_cover')
     price = models.DecimalField('Цена', max_digits=10, decimal_places=2)
     discount_percent: PositiveIntegerField = models.PositiveIntegerField(
         'Скидка (%)',
@@ -52,7 +47,6 @@ class Product(TimeStampedModel):
         verbose_name='Статус',
         max_length=30
     )
-
     @property
     def final_price(self) -> Decimal:
         if self.discount_percent:
@@ -67,6 +61,7 @@ class Product(TimeStampedModel):
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
         ordering = ['name']
+
 
 class Image(TimeStampedModel):
     product = models.ForeignKey(
@@ -117,4 +112,3 @@ class Brand(TimeStampedModel):
         verbose_name = 'Бренд'
         verbose_name_plural = 'Бренды'
         ordering = ['name']
-

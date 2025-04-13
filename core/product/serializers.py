@@ -1,6 +1,5 @@
 from .models import Product, Banner, Brand, Category
 from rest_framework import serializers
-from .choices import BannerPositionEnum
 
 
 class CategorySerializer(serializers.ModelSerializer):
