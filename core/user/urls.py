@@ -9,7 +9,11 @@ from . import views
 
 
 urlpatterns = [
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    path('user/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('user/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('user/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+
+    path('user/register/', views.MyUserRegisterView.as_view()),
+    path('user/reset_password/', views.MyUserResetPasswordView.as_view())
+    path('user/confirm_otp/<int:user_id>/', ...)
 ]
