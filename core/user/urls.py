@@ -15,6 +15,6 @@ urlpatterns = [
 
 
     path('user/register/', views.MyUserRegisterView.as_view()),
-    path('user/reset_password/', views.MyUserResetPasswordView.as_view())
+    path('user/reset_password/', views.MyUserResetPasswordView.as_view()),
     path('user/confirm_otp/<int:user_id>/', ...)
 ]
