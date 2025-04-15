@@ -1,4 +1,3 @@
-from django.contrib.admin.utils import model_ngettext
 from rest_framework import serializers
 from .models import Product, Banner, Brand, Category
 
