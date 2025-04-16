@@ -1,3 +1,4 @@
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView, Response
 from rest_framework import status
 from .serializers import MyUserRegisterSerializer, UserResetPasswordSerializer, MyUserRestorePasswordSerializer
@@ -34,3 +35,11 @@ class MyUserRestorePasswordView(APIView):
             return Response(serializer.data, status.HTTP_201_CREATED)
 
         return Response(status.HTTP_400_BAD_REQUEST)
+
+class MyUserDeactivateView(APIView):
+    permission_classes = [IsAuthenticated]
+    def delete(self, request):
+        user = request.user
+        user.is_active = False
+        user.save()
+        return Response({'message': 'Пользователь успешно удален!'}, status=status.HTTP_200_OK)
