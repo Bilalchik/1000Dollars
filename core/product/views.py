@@ -6,9 +6,9 @@ from rest_framework.permissions import IsAuthenticated
 from django.core.mail import send_mail
 from django.conf import settings
 
-from .models import Product, Banner, Brand
+from .models import Product, Banner, Brand, Favorite
 from .serializers import (BannerListSerializer, BrandListSerializer, ProductListSerializer,
-                          ProductDetailListSerializer, FavoriteCreateSerializer)
+                          ProductDetailListSerializer, FavoriteCreateSerializer, FavoriteListSerializer)
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -67,3 +67,11 @@ class FavoriteCreateView(APIView):
             serializer.save()
             return Response({'message': 'Продукт добавлен в избранное!'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class FavoriteListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        favorites = Favorite.objects.filter(user=request.user)
+        serializer = FavoriteListSerializer(favorites, many=True)
+        return Response(serializer.data)

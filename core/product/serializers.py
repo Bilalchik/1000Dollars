@@ -74,3 +74,10 @@ class FavoriteCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context['request'].user
         return Favorite.objects.create(user=user, **validated_data)
+
+class FavoriteListSerializer(serializers.ModelSerializer):
+    product = ProductListSerializer(read_only=True)
+
+    class Meta:
+        model = Favorite
+        fields = ('id', 'product', 'created_at')
