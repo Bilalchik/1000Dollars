@@ -58,6 +58,9 @@ class UserResetPasswordSerializer(serializers.Serializer):
         self.send_user_email(email=validated_data['email'], code=code)
         return otp
 
+    def to_representation(self, instance):
+        return {'user_id': instance.user.id}
+
     @staticmethod
     def get_generate_otp_code():
         random_code = random.randint(100000, 999999)
@@ -73,6 +76,32 @@ class UserResetPasswordSerializer(serializers.Serializer):
             [email],
             fail_silently=False,
         )
+        
+        
+class MyUserRestorePasswordSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField(required=True, write_only=True)
+    new_password = serializers.CharField(required=True, write_only=True, trim_whitespace=False)
+    confirm_new_password = serializers.CharField(required=True, write_only=True, trim_whitespace=False)
+
+    def validate(self, attrs):
+        user = MyUser.objects.filter(id=attrs['user_id']).first()
+
+        if attrs['new_password'] != attrs['confirm_new_password']:
+            raise serializers.ValidationError({'password': 'Не похожи'})
+        elif not user:
+            raise serializers.ValidationError({'user_id': 'Такой id нету'})
+
+        return attrs
+
+    def create(self, validated_data):
+        user = MyUser.objects.filter(id=validated_data['user_id']).first()
+        user.set_password(validated_data['new_password'])
+        user.save()
+
+        return user
 
 
-OTP.objects.filter(code=validated_data['code'], user=user)
+
+
+
+# OTP.objects.filter(code=validated_data['code'], user=user)
