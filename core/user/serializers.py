@@ -6,8 +6,6 @@ from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
 
 from .models import MyUser, OTP
-from django.utils import timezone
-from datetime import timedelta
 
 # serializers.ModelSerializer
 class MyUserRegisterSerializer(serializers.Serializer):
@@ -77,28 +75,4 @@ class UserResetPasswordSerializer(serializers.Serializer):
         )
 
 
-class OTPConfirmSerializer(serializers.Serializer):
-    code = serializers.CharField(max_length=6)
-
-    def validate(self, attrs):
-        user_id = self.context['user_id']
-        code = attrs.get('code')
-
-        try:
-            user = MyUser.objects.get(id=user_id)
-        except MyUser.DoesNotExist:
-            raise serializers.ValidationError({"user": "Пользователь не найден"})
-
-        try:
-            otp = OTP.objects.filter(user=user, code=code, if_used=False).latest('created_date')
-        except OTP.DoesNotExist:
-            raise serializers.ValidationError({"code": "Неверный или уже использованный код"})
-
-        if timezone.now() - otp.created_date > timedelta(minutes=10):
-            raise serializers.ValidationError({"code": "Код устарел"})
-
-        otp.if_used = True
-        otp.save()
-        attrs['user'] = user
-        return attrs
-
+OTP.objects.filter(code=validated_data['code'], user=user)

@@ -1,5 +1,4 @@
 from django.urls import path
-from .views import ConfirmOTPView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -15,7 +14,6 @@ urlpatterns = [
     path('user/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
     path('user/register/', views.MyUserRegisterView.as_view()),
-    path('user/reset_password/', views.MyUserResetPasswordView.as_view()),
-    path('user/confirm_otp/<int:user_id>/', ConfirmOTPView.as_view(), name='confirm_otp'),
+    path('user/reset_password/', views.MyUserResetPasswordView.as_view())
+    path('user/confirm_otp/<int:user_id>/', ...)
 ]
-
