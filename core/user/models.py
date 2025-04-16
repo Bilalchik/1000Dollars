@@ -41,12 +41,10 @@ class MyUser(AbstractBaseUser):
     phone_number = models.CharField(max_length=14, blank=True, null=True)
     address = models.CharField(max_length=220, blank=True, null=True)
     cover = models.ImageField(upload_to='media/user_cover', blank=True, null=True)
-    created_date = models.DateTimeField(
-        auto_now_add=True
-    )
-    is_admin = models.BooleanField(
-        default=False
-    )
+    created_date = models.DateTimeField(auto_now_add=True)
+    is_admin = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
 
     objects = MyUserManager()
 
@@ -78,7 +76,6 @@ class MyUser(AbstractBaseUser):
 
 
 class OTP(models.Model):
-    DoesNotExist = None
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
     code = models.CharField(max_length=6)
     if_used = models.BooleanField(default=False)
