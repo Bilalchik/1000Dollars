@@ -78,6 +78,7 @@ class MyUser(AbstractBaseUser):
 
 
 class OTP(models.Model):
+    DoesNotExist = None
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
     code = models.CharField(max_length=6)
     if_used = models.BooleanField(default=False)

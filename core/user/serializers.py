@@ -76,4 +76,4 @@ class UserResetPasswordSerializer(serializers.Serializer):
         )
 
 
-OTP.objects.filter(code=validated_data['code'], user=user)
+# OTP.objects.filter(code=validated_data['code'], user=user)
