@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.core.validators import MaxValueValidator
 from .choices import ProductStatusEnum, BannerPositionEnum
 
@@ -53,16 +54,6 @@ class Product(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
 
-    def clean(self):
-        if self.discount_price > self.price:
-            raise MaxValueValidator({
-                'discount_price': 'Скидочная цена не может быть больше основной стоимости.'
-            })
-
-    def save(self, *args, **kwargs):
-        self.full_clean()  # Вызовет clean() перед сохранением
-        super().save(*args, **kwargs)
-
 
     def __str__(self):
         return self.title
@@ -90,3 +81,15 @@ class Size(models.Model):
 
     def __str__(self):
         return self.title
+
+class Favorite(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    created_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product')  # чтобы не было дубликатов
+        ordering = ['-created_date']
+
+    def __str__(self):
+        return f"{self.user} → {self.product}"

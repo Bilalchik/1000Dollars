@@ -1,11 +1,8 @@
-<<<<<<< HEAD
-=======
 from decimal import Decimal
 
 from django.contrib.admin.utils import model_ngettext
->>>>>>> 1c5eea1514c38f1a14ff1ae02f88800ffd4fc008
 from rest_framework import serializers
-from .models import Product, Banner, Brand, Category, Image
+from .models import Product, Banner, Brand, Category, Image, Favorite
 
 
 class ImageListSerializer(serializers.ModelSerializer):
@@ -67,3 +64,13 @@ class ProductDetailListSerializer(serializers.ModelSerializer):
         serializer = ImageListSerializer(images, many=True)
 
         return serializer.data
+
+
+class FavoriteCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Favorite
+        fields = ('product',)
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        return Favorite.objects.create(user=user, **validated_data)

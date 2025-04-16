@@ -1,4 +1,5 @@
 from rest_framework.views import APIView, Response
+from rest_framework import status
 from django.db.models import F, Q
 from django.shortcuts import get_list_or_404, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -6,7 +7,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 
 from .models import Product, Banner, Brand
-from .serializers import BannerListSerializer, BrandListSerializer, ProductListSerializer, ProductDetailListSerializer
+from .serializers import (BannerListSerializer, BrandListSerializer, ProductListSerializer,
+                          ProductDetailListSerializer, FavoriteCreateSerializer)
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -56,3 +58,12 @@ class ProductDetailView(APIView):
         return Response(data)
 
 
+class FavoriteCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = FavoriteCreateSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Продукт добавлен в избранное!'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
