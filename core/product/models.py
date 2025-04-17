@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MaxValueValidator
 
+from user.models import MyUser
 from .choices import ProductStatusEnum, BannerPositionEnum
 
 
@@ -15,7 +16,7 @@ class Category(models.Model):
 
 
 class Image(models.Model):
-    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='images')
     file = models.ImageField(upload_to='media/products/detail_image')
     created_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
@@ -81,3 +82,28 @@ class Size(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Storage(models.Model):
+    # user = models.ForeignKey(MyUser, )
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='storages')
+    quantity = models.PositiveSmallIntegerField()
+    size = models.ForeignKey(Size, on_delete=models.CASCADE, related_name='storages')
+    created_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.product)
+
+
+class Basket(models.Model):
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='baskets')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='baskets')
+    quantity = models.PositiveSmallIntegerField()
+    size = models.ForeignKey(Size, on_delete=models.CASCADE, related_name='baskets')
+    delivery_price = models.DecimalField(decimal_places=2, max_digits=12, default=0)
+    created_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user} --> {self.product}"
