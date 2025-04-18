@@ -6,6 +6,15 @@ from rest_framework import serializers
 from .models import Product, Banner, Brand, Category, Image, Favorite
 
 
+from decimal import Decimal
+
+from django.contrib.admin.utils import model_ngettext
+from rest_framework import serializers
+
+from user.models import MyUser
+from .models import Product, Banner, Brand, Category, Image, Size, Storage, Basket
+
+
 class ImageListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
@@ -25,15 +34,9 @@ class BannerListSerializer(serializers.ModelSerializer):
 
 
 class BrandListSerializer(serializers.ModelSerializer):
-    status = serializers.SerializerMethodField()
-
     class Meta:
         model = Brand
         fields = '__all__'
-
-    @staticmethod
-    def get_status(self, obj):
-        return obj.get_status_display()
 
 
 class ProductListSerializer(serializers.ModelSerializer):
@@ -57,11 +60,12 @@ class ProductListSerializer(serializers.ModelSerializer):
 
 class ProductDetailListSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
+    sizes = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = ('id', 'title', 'brand', 'description', 'category', 'description', 'main_cover', 'status', 'created_date',
-                  'images')
+                  'images', 'sizes')
 
     @staticmethod
     def get_images(obj):
@@ -70,6 +74,47 @@ class ProductDetailListSerializer(serializers.ModelSerializer):
         serializer = ImageListSerializer(images, many=True)
 
         return serializer.data
+
+    def get_sizes(self, obj):
+        all_sizes = Size.objects.all()
+
+        result = {}
+        for size in all_sizes:
+            is_product_storage_in_stock = Storage.objects.filter(product=obj, size=size, quantity__gt=0).exists()
+
+            result[size.title] = {'id': size.id, 'in_stock': is_product_storage_in_stock}
+
+        return result
+
+
+class BasketCreateSerializer(serializers.Serializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    product_id = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all(), source='product')
+    quantity = serializers.IntegerField(required=True)
+    size = serializers.PrimaryKeyRelatedField(queryset=Size.objects.all())
+    delivery_price = serializers.IntegerField(required=True)
+
+    #  {'user': <MyUser: admin>, 'product': <Product: 123123>, 'quantity': 10, 'size': <Size: S>, 'delivery_price': 250}
+    def validate(self, attrs):
+        storage = Storage.objects.filter(product=attrs['product'], size=attrs['size']).first()
+
+        if storage.quantity < attrs['quantity']:
+            raise serializers.ValidationError({'quantity': 'В таком кол-во нету'})
+
+        return attrs
+
+
+    def create(self, validated_data):
+
+        basket = Basket.objects.create(
+            user=validated_data['user'],
+            product=validated_data['product'],
+            quantity=validated_data['quantity'],
+            size=validated_data['size'],
+            delivery_price=validated_data['delivery_price'],
+        )
+
+        return basket
 
 class FavoriteSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
