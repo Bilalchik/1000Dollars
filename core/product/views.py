@@ -1,12 +1,15 @@
 from rest_framework.views import APIView, Response
+from rest_framework import status
+
 from django.db.models import F, Q
 from django.shortcuts import get_list_or_404, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from django.core.mail import send_mail
 from django.conf import settings
 
-from .models import Product, Banner, Brand
-from .serializers import BannerListSerializer, BrandListSerializer, ProductListSerializer, ProductDetailListSerializer
+from .models import Product, Banner, Brand, Image
+from .serializers import BannerListSerializer, BrandListSerializer, ProductListSerializer, ProductDetailListSerializer, \
+    BasketCreateSerializer
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -15,11 +18,17 @@ print(certifi.where())
 
 
 class IndexView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         banners = Banner.objects.filter(is_active=True)
         brands = Brand.objects.filter(is_active=True)
+
+        print(request.query_params)
+        if 'sort' in request.query_params:
+
+            if request.query_params['sort'] == 'newly':
+                banners.order_by('-created_date')
 
         # TODO: Фильтрация пол самым продаваемым
         best_sellers_products = Product.objects.filter(is_active=True)
@@ -49,10 +58,26 @@ class ProductDetailView(APIView):
         product_serializer = ProductDetailListSerializer(product)
         similar_products_serializer = ProductListSerializer(similar_products, many=True)
 
+
+        # Image.objects.filter(product=product)
+        # product.images
+
         data = {
             "product_detail": product_serializer.data,
             "similar_products": similar_products_serializer.data
         }
         return Response(data)
 
+
+class BasketCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = BasketCreateSerializer(data=request.data, context={'request': request})
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status.HTTP_201_CREATED)
+
+        return Response(status.HTTP_400_BAD_REQUEST)
 
