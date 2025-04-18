@@ -31,36 +31,6 @@ class BrandListSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ProductListSerializer(serializers.ModelSerializer):
-    brand = serializers.SlugRelatedField(read_only=True, slug_field='title')
-    category = CategoryListSerializer()
-    status = serializers.SerializerMethodField()
-    discount_price = serializers.SerializerMethodField()
-    likes_count = serializers.IntegerField(read_only=True)
-
-    class Meta:
-        model = Product
-        fields = '__all__'
-
-
-    def get_discount_price(self, obj):
-        percent = Decimal(obj.discount_rate) / Decimal('100')
-        discount_price = obj.price * percent
-        total_price = obj.price - discount_price
-        return total_price
-
-    def get_status(self, obj):
-        return obj.get_status_display()
-
-    def get_discount_price(self, obj):
-        percent = Decimal(obj.discount_rate) / Decimal('100')
-        discount_price = obj.price * percent
-        total_price = obj.price - discount_price
-        return total_price
-
-    def get_status(self, obj):
-        return obj.get_status_display()
-
 
 class ProductDetailListSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
@@ -89,6 +59,27 @@ class ProductDetailListSerializer(serializers.ModelSerializer):
             result[size.title] = {'id': size.id, 'in_stock': is_product_storage_in_stock}
 
         return result
+
+class ProductListSerializer(serializers.ModelSerializer):
+    brand = serializers.SlugRelatedField(read_only=True, slug_field='title')
+    category = CategoryListSerializer()
+    status = serializers.SerializerMethodField()
+    discount_price = serializers.SerializerMethodField()
+    likes_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Product
+        fields = '__all__'
+
+    def get_discount_price(self, obj):
+        percent = Decimal(obj.discount_rate) / Decimal('100')
+        discount_price = obj.price * percent
+        total_price = obj.price - discount_price
+        return total_price
+
+    def get_status(self, obj):
+        return obj.get_status_display()
+
 
 class FavoriteCreateSerializer(serializers.ModelSerializer):
     class Meta:
