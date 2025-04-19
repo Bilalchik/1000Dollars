@@ -11,3 +11,9 @@ class BannerPositionEnum(models.TextChoices):
     HEADER_MAIN_PAGE = ('header_main_page', 'В шапке на главной странице')
     MIDDLE_MAIN_PAGE = ('middle_main_page', 'В середине на главной странице')
     HEADER_DETAIL_PAGE = ('header_detail_page', 'В шапке в детальной странице')
+
+
+class OrderStatusEnum(models.TextChoices):
+    IN_PROGRESS = ('in_progress', 'В обработке')
+    ACCEPTED = ('accepted', 'Принято')
+    DENIED = ('denied', 'Отклонено')
