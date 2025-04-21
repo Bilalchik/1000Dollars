@@ -1,10 +1,12 @@
 from decimal import Decimal
-
+from random import randint
+from rest_framework import serializers
+from .models import OrderRequest, Order
 import data
 from django.contrib.admin.utils import model_ngettext
+from django.db.models import Sum
 from rest_framework import serializers
-from .models import Product, Banner, Brand, Category, Image, Favorite
-
+from .models import Product, Banner, Brand, Category, Image, Favorite, Order, Qr
 
 from decimal import Decimal
 
@@ -106,10 +108,17 @@ class BasketCreateSerializer(serializers.Serializer):
 
     def create(self, validated_data):
 
+        product = validated_data['product']
+        quantity = validated_data['quantity']
+
+        total_price = product.price * quantity
+
+
         basket = Basket.objects.create(
             user=validated_data['user'],
-            product=validated_data['product'],
-            quantity=validated_data['quantity'],
+            product=product,
+            quantity=quantity,
+            total_price=total_price,
             size=validated_data['size'],
             delivery_price=validated_data['delivery_price'],
         )
@@ -130,3 +139,72 @@ class FavoriteListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
         fields = ['id', 'product']
+
+class OrderBulkCreateSerializer(serializers.Serializer):
+    baskets_ids = serializers.ListField(child=serializers.IntegerField(), write_only=True)    # [1, 2, 3, 4]
+    address = serializers.CharField()
+
+
+    def create(self, validated_data):
+        baskets_ids = validated_data['baskets_ids']   # [1, 2, 3, 4]
+
+        baskets = Basket.objects.filter(id__in=baskets_ids)
+        total_price = baskets.aggregate(totals=Sum('total_price'))['totals']
+
+        order = Order.objects.create(
+            user=self.context['request'].user,
+            order_number=self.get_random_number_by_id(),
+            total_price=total_price,
+            address=validated_data['address']
+        )
+        order.baskets.set(baskets)
+        order.save()
+
+        return order
+
+    def to_representation(self, instance):
+        data = {
+            "order_id": instance.id
+        }
+
+        return data
+
+    @staticmethod
+    def get_random_number_by_id():
+        while True:
+            random_number = randint(100000, 999999)
+
+            if not Order.objects.filter(order_number=random_number).exists():
+                return random_number
+
+
+class QrListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Qr
+        fields = ('id', 'qr_image')
+
+
+class OrderQrListSerializer(serializers.ModelSerializer):
+    qr_image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Order
+        fields = ('total_price', 'qr_image')
+
+    def get_qr_image(self, obj):
+        qr = Qr.objects.all()
+        serializer = QrListSerializer(qr, many=True)
+
+        return serializer.data
+
+class OrderRequestCreateSerializer(serializers.ModelSerializer):
+    id_order = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all(), source='order')
+    paycheck = serializers.ImageField(required=True)
+
+    class Meta:
+        model = OrderRequest
+        fields = ['id_order', 'paycheck']
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        return OrderRequest.objects.create(user=user, **validated_data)

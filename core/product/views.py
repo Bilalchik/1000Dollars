@@ -7,9 +7,15 @@ from rest_framework.permissions import IsAuthenticated
 from django.core.mail import send_mail
 from django.conf import settings
 
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from .models import OrderRequest
+from .serializers import OrderRequestCreateSerializer
 from django.db.models import Count
-from product.models import Product
-from product.serializers import ProductListSerializer
+from product.models import Product, Order
+from product.serializers import ProductListSerializer, OrderQrListSerializer, OrderBulkCreateSerializer
 from .models import Product, Banner, Brand, Image, Favorite
 from .serializers import BannerListSerializer, BrandListSerializer, ProductListSerializer, ProductDetailListSerializer, \
     BasketCreateSerializer, FavoriteListSerializer
@@ -139,3 +145,37 @@ class ProductListView(APIView):
 
         serializer = ProductListSerializer(products, many=True)
         return Response(serializer.data)
+
+
+class OrderBulkCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = OrderBulkCreateSerializer(data=request.data, context={'request': request})
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+
+            return Response(serializer.data, status.HTTP_201_CREATED)
+
+        return Response(status.HTTP_400_BAD_REQUEST)
+
+
+class OrderQrView(APIView):
+    def get(self, request, order_id):
+        order = get_object_or_404(Order, id=order_id)
+
+        serializer = OrderQrListSerializer(order)
+
+        return Response(serializer.data)
+
+
+class OrderRequestCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = OrderRequestCreateSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

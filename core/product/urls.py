@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import FavoriteToggleView, FavoriteListView, ProductListView
+from .views import FavoriteToggleView, FavoriteListView, ProductListView, OrderRequestCreateView
 
 urlpatterns = [
     path('index/', views.IndexView.as_view()),
@@ -11,5 +11,10 @@ urlpatterns = [
 
     path('products_filter/', ProductListView.as_view(), name='product_list'),
 
-    path('basket/create/', views.BasketCreateView.as_view())
+    path('basket/create/', views.BasketCreateView.as_view()),
+
+    path('order/bulk_create/', views.OrderBulkCreateView.as_view()),
+    path('order/qr_list/<int:order_id>/', views.OrderQrView.as_view()),
+    path('order-request/create/', OrderRequestCreateView.as_view(), name='order_request_create'),
+
 ]
