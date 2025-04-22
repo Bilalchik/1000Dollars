@@ -1,5 +1,8 @@
 from rest_framework.views import APIView, Response
+from rest_framework import generics
 from rest_framework import status
+from django_filters import rest_framework as filters
+
 
 from django.db.models import F, Q
 from django.shortcuts import get_list_or_404, get_object_or_404
@@ -7,9 +10,11 @@ from rest_framework.permissions import IsAuthenticated
 from django.core.mail import send_mail
 from django.conf import settings
 
-from .models import Product, Banner, Brand, Image, Order
+from .models import Product, Banner, Brand, Image, Order, Category
 from .serializers import BannerListSerializer, BrandListSerializer, ProductListSerializer, ProductDetailListSerializer, \
-    BasketCreateSerializer, OrderBulkCreateSerializer, OrderQrListSerializer
+    BasketCreateSerializer, OrderBulkCreateSerializer, OrderQrListSerializer, OrderListSerializer, \
+    CategoryCreateSerializer
+from .filters import ProductFilter
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -104,3 +109,27 @@ class OrderQrView(APIView):
 
         return Response(serializer.data)
 
+
+class OrderListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = OrderListSerializer
+
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user)
+
+
+class OrderDetailView(generics.RetrieveAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderListSerializer
+
+
+class CategoryCreateView(generics.CreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategoryCreateSerializer
+
+
+class ProductListView(generics.ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductListSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = ProductFilter

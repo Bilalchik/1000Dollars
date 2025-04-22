@@ -177,4 +177,22 @@ class OrderQrListSerializer(serializers.ModelSerializer):
         return serializer.data
 
 
+class BasketListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Basket
+        fields = '__all__'
+
+
+class OrderListSerializer(serializers.ModelSerializer):
+    baskets = BasketListSerializer(many=True)
+
+    class Meta:
+        model = Order
+        fields = '__all__'
+
+
+class CategoryCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('title', )
 
