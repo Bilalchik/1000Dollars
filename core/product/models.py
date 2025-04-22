@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MaxValueValidator
 from user.models import MyUser
-from .choices import ProductStatusEnum, BannerPositionEnum
+from .choices import ProductStatusEnum, BannerPositionEnum, OrderStatusEnum
 
 
 class Category(models.Model):
@@ -115,9 +115,38 @@ class Basket(models.Model):
     quantity = models.PositiveSmallIntegerField()
     size = models.ForeignKey(Size, on_delete=models.CASCADE, related_name='baskets')
     delivery_price = models.DecimalField(decimal_places=2, max_digits=12, default=0)
+    total_price = models.DecimalField(decimal_places=2, max_digits=12, default=0)
     created_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.user} --> {self.product}"
 
+
+class Order(models.Model):
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='orders')
+    baskets = models.ManyToManyField(Basket)
+    order_number = models.PositiveBigIntegerField()
+    total_price = models.DecimalField(decimal_places=2, max_digits=12, default=0)
+    address = models.CharField(max_length=225)
+    status = models.CharField(choices=OrderStatusEnum.choices, default=OrderStatusEnum.IN_PROGRESS, max_length=13)
+    created_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.user)
+
+
+class Qr(models.Model):
+    qr_image = models.ImageField(upload_to='media/qr')
+
+
+class OrderRequest(models.Model):
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='order_requests')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    paycheck = models.ImageField(upload_to='media/order_requests')
+    created_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.user)

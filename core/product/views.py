@@ -6,10 +6,10 @@ from rest_framework.permissions import IsAuthenticated
 from django.core.mail import send_mail
 from django.conf import settings
 
-from .models import Product, Banner, Brand, Image,Favorite
-from .serializers import (BannerListSerializer, BrandListSerializer, ProductListSerializer,
-                          ProductDetailListSerializer,BasketCreateSerializer, FavoriteCreateSerializer,
-                          FavoriteListSerializer)
+from .models import Product, Banner, Brand, Image, Order, Favorite
+from .serializers import (BannerListSerializer, BrandListSerializer, ProductListSerializer, ProductDetailListSerializer,
+                          BasketCreateSerializer, OrderBulkCreateSerializer, OrderQrListSerializer,FavoriteCreateSerializer,
+                          FavoriteListSerializer, OrderListSerializer, OrderDetailSerializer)
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -120,3 +120,43 @@ class ProductListView(APIView):
 
         serializer = ProductListSerializer(products, many=True)
         return Response(serializer.data)
+
+
+class OrderBulkCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = OrderBulkCreateSerializer(data=request.data, context={'request': request})
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+
+            return Response(serializer.data, status.HTTP_201_CREATED)
+
+        return Response(status.HTTP_400_BAD_REQUEST)
+
+
+class OrderQrView(APIView):
+    def get(self, request, order_id):
+        order = get_object_or_404(Order, id=order_id)
+
+        serializer = OrderQrListSerializer(order)
+
+        return Response(serializer.data)
+
+
+class OrderListView(APIView):
+    def get(self, request):
+        orders = Order.objects.filter(user=request.user)  # Список заказов текущего пользователя
+        serializer = OrderListSerializer(orders, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class OrderDetailView(APIView):
+    def get(self, request, order_id):
+        try:
+            order = Order.objects.get(id=order_id, user=request.user)  # Получаем заказ для текущего пользователя
+        except Order.DoesNotExist:
+            return Response({"detail": "Заказ не найден или у вас нет прав доступа к нему."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = OrderDetailSerializer(order)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Product, Banner, Brand, Category, Image, Storage, Size, Basket, Favorite
+from .models import Product, Banner, Brand, Category, Image, Storage, Size, Basket, Order, Favorite
+
 
 
 admin.site.register(Product)
@@ -11,3 +12,5 @@ admin.site.register(Storage)
 admin.site.register(Size)
 admin.site.register(Basket)
 admin.site.register(Favorite)
+admin.site.register(Order)
+
