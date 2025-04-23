@@ -42,7 +42,9 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework',
     'product',
-    'user'
+    'user',
+    'drf_spectacular',
+
 ]
 
 MIDDLEWARE = [
@@ -149,7 +151,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
-
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 BASE_DIR = Path(__file__).resolve().parent.parent
