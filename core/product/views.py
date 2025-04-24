@@ -2,6 +2,7 @@ from rest_framework.views import APIView, Response
 from rest_framework import generics
 from rest_framework import status
 from django_filters import rest_framework as filters
+from drf_yasg.utils import swagger_auto_schema
 
 
 from django.db.models import F, Q
@@ -56,6 +57,8 @@ class IndexView(APIView):
 
 
 class ProductDetailView(APIView):
+
+    @swagger_auto_schema(responses={200: ProductDetailListSerializer()})
     def get(self, request, product_id):
         product = get_object_or_404(Product, id=product_id)
         similar_products = Product.objects.filter(category=product.category).exclude(id=product_id)
