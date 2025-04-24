@@ -1,16 +1,16 @@
 from rest_framework.views import APIView, Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
+from rest_framework import status
 from django.db.models import F, Q
 from django.shortcuts import get_list_or_404, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from django.core.mail import send_mail
 from django.conf import settings
+from drf_yasg.utils import swagger_auto_schema
 
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
+
 from .models import OrderRequest
 from .serializers import OrderRequestCreateSerializer
 from django.db.models import Count
@@ -28,7 +28,7 @@ print(certifi.where())
 
 class IndexView(APIView):
     # permission_classes = [IsAuthenticated]
-
+    @swagger_auto_schema(responses={200: ProductListSerializer()})
     def get(self, request):
         banners = Banner.objects.filter(is_active=True)
         brands = Brand.objects.filter(is_active=True)
@@ -60,6 +60,7 @@ class IndexView(APIView):
 
 
 class ProductDetailView(APIView):
+    @swagger_auto_schema(responses={200: ProductDetailListSerializer()})
     def get(self, request, product_id):
         product = get_object_or_404(Product, id=product_id)
         similar_products = Product.objects.filter(category=product.category).exclude(id=product_id)
@@ -81,6 +82,7 @@ class ProductDetailView(APIView):
 class BasketCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(responses={200: BasketCreateSerializer()})
     def post(self, request):
         serializer = BasketCreateSerializer(data=request.data, context={'request': request})
 
@@ -108,6 +110,7 @@ class FavoriteToggleView(APIView):
 class FavoriteListView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(responses={200: FavoriteListSerializer()})
     def get(self, request):
         user = request.user
         favorites = Favorite.objects.filter(user=user)
@@ -119,6 +122,7 @@ class FavoriteListView(APIView):
 
 
 class ProductListView(APIView):
+    @swagger_auto_schema(responses={200: ProductListSerializer()})
     def get(self, request):
         products = Product.objects.all()
 
@@ -150,6 +154,7 @@ class ProductListView(APIView):
 class OrderBulkCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(responses={200: OrderBulkCreateSerializer()})
     def post(self, request):
         serializer = OrderBulkCreateSerializer(data=request.data, context={'request': request})
 
@@ -162,6 +167,7 @@ class OrderBulkCreateView(APIView):
 
 
 class OrderQrView(APIView):
+    @swagger_auto_schema(responses={200: OrderQrListSerializer()})
     def get(self, request, order_id):
         order = get_object_or_404(Order, id=order_id)
 
@@ -173,6 +179,7 @@ class OrderQrView(APIView):
 class OrderRequestCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(responses={200: OrderRequestCreateSerializer()})
     def post(self, request):
         serializer = OrderRequestCreateSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():

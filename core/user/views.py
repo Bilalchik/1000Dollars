@@ -3,11 +3,14 @@ from rest_framework.views import APIView, Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from drf_yasg.utils import swagger_auto_schema
+
 from .serializers import MyUserRegisterSerializer, UserResetPasswordSerializer, MyUserRestorePasswordSerializer, \
     OTPConfirmSerializer
 
 
 class MyUserRegisterView(APIView):
+    @swagger_auto_schema(responses={200: MyUserRegisterSerializer()})
     def post(self, request):
         serializer = MyUserRegisterSerializer(data=request.data)
 
@@ -19,6 +22,7 @@ class MyUserRegisterView(APIView):
 
 
 class MyUserResetPasswordView(APIView):
+    @swagger_auto_schema(responses={200: UserResetPasswordSerializer()})
     def post(self, request):
         serializer = UserResetPasswordSerializer(data=request.data)
 
@@ -29,6 +33,7 @@ class MyUserResetPasswordView(APIView):
         return Response(status.HTTP_400_BAD_REQUEST)
 
 class ConfirmOTPView(APIView):
+    @swagger_auto_schema(responses={200: OTPConfirmSerializer()})
     def post(self, request, user_id):
         serializer = OTPConfirmSerializer(data=request.data, context={'user_id': user_id})
 
@@ -45,6 +50,7 @@ class ConfirmOTPView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class MyUserRestorePasswordView(APIView):
+    @swagger_auto_schema(responses={200: MyUserRestorePasswordSerializer()})
     def post(self, request):
         serializer = MyUserRestorePasswordSerializer(data=request.data)
 
